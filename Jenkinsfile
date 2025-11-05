@@ -13,8 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/ZAIDALIKHAN/Jenkins-CI-CD-Docker-Terraform-Ansible
-.git'
+                git branch: 'main', url: 'https://github.com/ZAIDALIKHAN/Jenkins-CI-CD-Docker-Terraform-Ansible.git'
             }
         }
 
