@@ -44,14 +44,14 @@ pipeline {
         stage('Deploy to App Server') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no -i $PEM_PATH $APP_SERVER '
-                aws ecr get-login-password --region $AWS_REGION | \
-                docker login --username AWS --password-stdin $ECR_REPO &&
-                docker pull $ECR_REPO:$IMAGE_TAG &&
+                ssh -o StrictHostKeyChecking=no -i $PEM_PATH $APP_SERVER "
+                aws ecr get-login-password --region ${AWS_REGION} | \
+                docker login --username AWS --password-stdin ${ECR_REPO} &&
+                docker pull ${ECR_REPO}:${IMAGE_TAG} &&
                 docker stop myapp || true &&
                 docker rm myapp || true &&
-                docker run -d -p 80:5000 --name myapp $ECR_REPO:$IMAGE_TAG
-                '
+                docker run -d -p 80:5000 --name myapp ${ECR_REPO}:${IMAGE_TAG}
+                "
                 '''
             }
         }
