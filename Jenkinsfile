@@ -50,7 +50,7 @@ pipeline {
                 docker pull $ECR_REPO:$IMAGE_TAG &&
                 docker stop myapp || true &&
                 docker rm myapp || true &&
-                docker run -d -p 80:8080 --name myapp $ECR_REPO:$IMAGE_TAG
+                docker run -d -p 80:5000 --name myapp $ECR_REPO:$IMAGE_TAG
                 '
                 '''
             }
