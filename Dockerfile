@@ -14,4 +14,7 @@ COPY app.py .
 EXPOSE 5000
 
 # Run the Flask app
-CMD ["python", "app.py"]
+#CMD ["python", "app.py"]
+
+# Run Flask app using Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
