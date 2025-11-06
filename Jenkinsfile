@@ -41,7 +41,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to App Server') {
+        /*stage('Deploy to App Server') {
             steps {
                 sh '''
                 ssh -o StrictHostKeyChecking=no -i $PEM_PATH $APP_SERVER "
@@ -54,7 +54,28 @@ pipeline {
                 "
                 '''
             }
+        }*/
+
+                stage('Deploy to EKS') {
+            steps {
+                sh '''
+                    # Update image in Kubernetes manifests
+                    sed -i "s|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:.*|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:${IMAGE_TAG}|g" k8s/deployment.yaml
+
+                    # Apply the manifests
+                    kubectl apply -f k8s/deployment.yaml
+                    kubectl apply -f k8s/service.yaml
+
+                    # Wait and show service details
+                    echo "Waiting for LoadBalancer..."
+                    sleep 30
+                    kubectl get svc myapp-service
+                '''
+            }
         }
+
+
+        
     }
 
     post {
