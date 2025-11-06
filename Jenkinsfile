@@ -5,14 +5,14 @@ pipeline {
         AWS_REGION = 'us-east-1'
         ECR_REPO = '069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp'
         IMAGE_NAME = 'myapp'
-        IMAGE_TAG = 'latest'
-        APP_SERVER = 'ubuntu@52.207.33.241'
-        PEM_PATH = '/var/lib/jenkins/keys/Pair.pem'
+        IMAGE_TAG = "build-${BUILD_NUMBER}"
+        CLUSTER_NAME = 'demo-cluster'
     }
 
     stages {
         stage('Checkout') {
             steps {
+                echo "Cloning repository..."
                 git branch: 'main', url: 'https://github.com/ZAIDALIKHAN/Jenkins-CI-CD-Docker-Terraform-Ansible.git'
             }
         }
@@ -41,44 +41,40 @@ pipeline {
             }
         }
 
-        /*stage('Deploy to App Server') {
+        stage('Configure kubectl') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no -i $PEM_PATH $APP_SERVER "
-                aws ecr get-login-password --region ${AWS_REGION} | \
-                docker login --username AWS --password-stdin ${ECR_REPO} &&
-                docker pull ${ECR_REPO}:${IMAGE_TAG} &&
-                docker stop myapp || true &&
-                docker rm myapp || true &&
-                docker run -d -p 80:5000 --name myapp ${ECR_REPO}:${IMAGE_TAG}
-                "
+                echo "Configuring kubectl for EKS..."
+                aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+                kubectl get nodes
                 '''
             }
-        }*/
+        }
 
-                stage('Deploy to EKS') {
+        stage('Deploy to EKS') {
             steps {
                 sh '''
-                    # Update image in Kubernetes manifests
+                    echo "Deploying to EKS cluster..."
                     sed -i "s|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:.*|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:${IMAGE_TAG}|g" k8s/deployment.yaml
 
-                    # Apply the manifests
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
 
-                    # Wait and show service details
                     echo "Waiting for LoadBalancer..."
                     sleep 30
                     kubectl get svc myapp-service
                 '''
             }
         }
-
-
-        
     }
 
     post {
+        success {
+            echo "✅ EKS deployment successful!"
+        }
+        failure {
+            echo "❌ Pipeline failed! Check Jenkins console logs."
+        }
         always {
             cleanWs()
         }
