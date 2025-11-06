@@ -55,10 +55,10 @@ pipeline {
             steps {
                 sh '''
                     echo "Deploying to EKS cluster..."
-                    sed -i "s|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:.*|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:${IMAGE_TAG}|g" Jenkins-CI-CD-Docker-Terraform-Ansible/k8s/deployment.yaml
+                    sed -i "s|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:.*|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:${IMAGE_TAG}|g" Jenkins-CI-CD-Docker-Terraform-Ansible/k8/deployment.yaml
 
-                    kubectl apply -f Jenkins-CI-CD-Docker-Terraform-Ansible/k8s/deployment.yaml
-                    kubectl apply -f Jenkins-CI-CD-Docker-Terraform-Ansible/k8s/service.yaml
+                    kubectl apply -f Jenkins-CI-CD-Docker-Terraform-Ansible/k8/deployment.yaml
+                    kubectl apply -f Jenkins-CI-CD-Docker-Terraform-Ansible/k8/service.yaml
 
                     echo "Waiting for LoadBalancer..."
                     sleep 30
