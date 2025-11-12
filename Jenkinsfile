@@ -51,6 +51,21 @@ pipeline {
             }
         }
 
+        stage('Verify eksctl') {
+    steps {
+        sh '''
+        echo "=== Checking eksctl binary path and version ==="
+        which eksctl || echo "eksctl not found in PATH!"
+        /usr/bin/env /usr/local/bin/eksctl version || echo "eksctl failed to run!"
+        echo "=== Checking environment ==="
+        env | grep AWS || echo "No AWS vars set"
+        '''
+    }
+}
+
+
+        
+
        stage('Create EKS') {
     steps {
         sh '''
