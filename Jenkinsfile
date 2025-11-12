@@ -41,15 +41,7 @@ pipeline {
             }
         }
 
-        stage('Configure kubectl') {
-            steps {
-                sh '''
-                echo "Configuring kubectl for EKS..."
-                aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
-                kubectl get nodes
-                '''
-            }
-        }
+        
 
         stage('Verify eksctl') {
     steps {
