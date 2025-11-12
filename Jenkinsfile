@@ -51,21 +51,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to EKS') {
-            steps {
-                sh '''
-                    echo "Deploying to EKS cluster..."
-                    sed -i "s|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:.*|069380454032.dkr.ecr.us-east-1.amazonaws.com/myapp:${IMAGE_TAG}|g" k8/deployment.yaml
+       stage('Create EKS') {
+    steps {
+        sh '''
+        /usr/bin/env /usr/local/bin/eksctl create cluster --name $CLUSTER_NAME --region $AWS_REGION --fargate
+        /usr/bin/env /usr/local/bin/eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
+        '''
+    }
+}
 
-                    kubectl apply -f k8/deployment.yaml
-                    kubectl apply -f k8/service.yaml
-
-                    echo "Waiting for LoadBalancer..."
-                    sleep 30
-                    kubectl get svc myapp-service
-                '''
-            }
-        }
     }
 
     post {
